@@ -2,7 +2,7 @@
 
 1.  **Clone the Repository**
     ```bash
-    git clone <your-github-repo-url>
+    git clone https://github.com/hishamsalih2000/workout-trend-analysis
     cd workout-market-analysis
     ```
 
