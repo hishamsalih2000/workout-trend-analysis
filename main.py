@@ -83,8 +83,8 @@ def analyze_overall_trends():
     #plt.show()
 
     peak_idx = df['workout_worldwide'].idxmax()
-    peak_year = df.loc[peak_idx, 'month'].strftime('%Y')
-    logging.info(f"Finding: The peak year for 'workout' searches was {peak_year}.\n")
+    year_str = df.loc[peak_idx, 'month'].strftime('%Y')
+    logging.info(f"Finding: The peak year for 'workout' searches was {year_str}.\n")
 
 def analyze_keyword_trends():
     """
@@ -111,10 +111,17 @@ def analyze_keyword_trends():
     
     output_path = os.path.join(config.IMAGES_DIR, '2_keyword_trends.png')
     plt.savefig(output_path, bbox_inches='tight')
-    logging.info(f"Plot saved to {output_path}\n")
+    logging.info(f"Plot saved to {output_path}")
     #plt.show()
-    
-    # ... (additional findings can be logged here) ...
+
+    covid_data = df[(df['month'] >= covid_start) & (df['month'] <= covid_end)]
+    peak_covid = covid_data[['home_workout_worldwide', 'gym_workout_worldwide', 'home_gym_worldwide']].max().idxmax().replace('_worldwide', '')
+    most_recent_month = df['month'].max()
+    current_data = df[df['month'] == most_recent_month]
+    current = current_data[['home_workout_worldwide', 'gym_workout_worldwide', 'home_gym_worldwide']].idxmax(axis=1).values[0].replace('_worldwide', '')
+    logging.info(f"Finding: The peak keyword during COVID was '{peak_covid}'.")
+    logging.info(f"Finding: The most popular keyword currently is '{current}'.\n")
+
 
 def analyze_home_vs_gym_dominance():
     """
@@ -147,15 +154,52 @@ def analyze_home_vs_gym_dominance():
     max_diff_date = df.loc[df['home_vs_gym_diff'].idxmax(), 'month'].strftime('%B %Y')
     logging.info(f"Finding: The dominance of 'Home Workout' peaked in {max_diff_date}.\n")
 
+def analyze_geo_trends():
+    """
+    Analyzes geographical workout data to find top countries for general
+    and home-specific workout searches.
+    """
+    logging.info("--- 4. Analyzing Geographical Trends ---")
+    
+    # Load data for overall workout interest
+    df_geo = load_data(config.GEO_FILE)
+    perform_data_quality_checks(df_geo, 'workout_geo.csv')
+    
+    # Find the top country overall
+    top_country = df_geo.loc[df_geo['workout_2018_2023'].idxmax()]['country']
+    logging.info(f"Finding: The country with the highest overall workout interest is '{top_country}'.")
+
+    # Load data for keyword-specific geo interest
+    df_keywords_geo = load_data(config.KEYWORD_GEO_FILE)
+    perform_data_quality_checks(df_keywords_geo, 'three_keywords_geo.csv')
+
+    # Compare Philippines vs Malaysia for home workout interest
+    filtered_df = df_keywords_geo[df_keywords_geo['Country'].isin(['Philippines', 'Malaysia'])]
+    home_workout_geo = filtered_df.loc[filtered_df['home_workout_2018_2023'].idxmax()]['Country']
+    logging.info(f"Finding: Between the Philippines and Malaysia, '{home_workout_geo}' has the higher interest in home workouts.\n")
+
+    # Create a bar chart for the comparison
+    plt.figure(figsize=(8, 5))
+    plt.bar(filtered_df['Country'], filtered_df['home_workout_2018_2023'], color=['#FFC300', '#C70039'])
+    plt.xlabel('Country')
+    plt.ylabel('Relative Search Interest (2018-2023)')
+    plt.title('Comparative "Home Workout" Interest')
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    
+    output_path = os.path.join(config.IMAGES_DIR, '4_geo_comparison.png')
+    plt.savefig(output_path, bbox_inches='tight')
+    logging.info(f"Plot saved to {output_path}")
+    #plt.show()
+
 # --- Main Execution Block ---
 if __name__ == '__main__':
     # making the script interactive
     parser = argparse.ArgumentParser(description="Analyze workout search trends.")
     parser.add_argument(
         '--analysis', 
-        choices=['all', 'overall', 'keywords', 'dominance'], 
+        choices=['all', 'overall', 'keywords', 'dominance', 'geo'], 
         default='all',
-        help="Specify which analysis to run: 'overall', 'keywords', 'dominance', or 'all'."
+        help="Specify which analysis to run: 'overall', 'keywords', 'dominance', 'geo', or 'all'."
     )
     args = parser.parse_args()
 
@@ -168,11 +212,14 @@ if __name__ == '__main__':
         analyze_overall_trends()
         analyze_keyword_trends()
         analyze_home_vs_gym_dominance()
+        analyze_geo_trends()
     elif args.analysis == 'overall':
         analyze_overall_trends()
     elif args.analysis == 'keywords':
         analyze_keyword_trends()
     elif args.analysis == 'dominance':
         analyze_home_vs_gym_dominance()
+    elif args.analysis == 'geo':
+        analyze_geo_trends()
         
     logging.info("--- Analysis Complete ---")
