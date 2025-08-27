@@ -28,6 +28,31 @@ def load_data(file_path):
         logging.error(f"An unexpected error occurred while loading {file_path}: {e}")
         sys.exit(1)
 
+def perform_data_quality_checks(df, file_name):
+    """
+    Performs and logs basic data quality checks on a DataFrame.
+    """
+    logging.info(f"--- Performing Data Quality Checks on {file_name} ---")
+    
+    # Check for missing values
+    missing_values = df.isnull().sum().sum()
+    if missing_values > 0:
+        logging.warning(f"Found {missing_values} missing values.")
+    else:
+        logging.info("No missing values found.")
+
+    # Check for duplicate rows
+    duplicate_rows = df.duplicated().sum()
+    if duplicate_rows > 0:
+        logging.warning(f"Found {duplicate_rows} duplicate rows.")
+    else:
+        logging.info("No duplicate rows found.")
+    
+    # Log the data types
+    logging.info("DataFrame Info:")
+    df.info()
+    print("\n")
+
 def ensure_images_dir_exists():
     """
     Checks if the images directory from the config exists, and creates it if not.
@@ -42,6 +67,7 @@ def analyze_overall_trends():
     """
     logging.info("--- 1. Analyzing Overall Workout Trends ---")
     df = load_data(config.OVERALL_TRENDS_FILE)
+    perform_data_quality_checks(df, 'workout.csv')
     df['month'] = pd.to_datetime(df['month'], format='%Y-%m')
 
     plt.figure(figsize=(config.PLOT_WIDTH, config.PLOT_HEIGHT))
@@ -66,6 +92,7 @@ def analyze_keyword_trends():
     """
     logging.info("--- 2. Analyzing Specific Keyword Trends (Home vs. Gym) ---")
     df = load_data(config.KEYWORD_TRENDS_FILE)
+    perform_data_quality_checks(df, 'three_keywords.csv')
     df['month'] = pd.to_datetime(df['month'], format='%Y-%m')
 
     plt.figure(figsize=(config.PLOT_WIDTH, config.PLOT_HEIGHT))
@@ -95,6 +122,7 @@ def analyze_home_vs_gym_dominance():
     """
     logging.info("--- 3. Unique Analysis: The Battle of Home vs. Gym ---")
     df = load_data(config.KEYWORD_TRENDS_FILE)
+    perform_data_quality_checks(df, 'three_keywords.csv')
     df['month'] = pd.to_datetime(df['month'], format='%Y-%m')
     
     df['home_vs_gym_diff'] = df['home_workout_worldwide'] - df['gym_workout_worldwide']
