@@ -1,32 +1,37 @@
 # Analysis of Global Workout Search Trends (2018-2023)
 
-## My Motivation: From Academic Theory to Practical Application
+## My Motivation: From Internship Experience to Deeper Skills
 
-As a student transitioning from a B.Sc. in Information Technology to a M.Sc. in Data Engineering, I am constantly seeking opportunities to bridge the gap between academic knowledge and real-world application. This project represents a key part of that journey. My goal was not just to analyze data, but to build a complete, professional, and end-to-end data analysis pipeline—from raw data to actionable insights—that showcases best practices in software engineering.
+Having gained practical experience in data analysis during my internship, I understand that the foundation of any valuable insight is clean, well-structured data. This project began as an opportunity to revisit fundamental data processing concepts, inspired by a DataCamp course, and to build upon them with a professional software engineering mindset.
 
-I believe that the ability to handle data with care, structure code logically, and communicate findings clearly is the foundation for any successful data-driven product, especially in the field of AI and Machine Learning.
+My goal was to construct a complete, professional, and end-to-end data analysis pipeline—from raw data to actionable insights—that showcases best practices I've learned both in theory and in practice.
 
 ## The Story: From Tutorial to Professional Tool
 
-The foundational concept and dataset for this project were inspired by a tutorial on DataCamp. While the tutorial provided a great starting point, I saw an opportunity to build it into something much more robust and professional. My objective was to take a simple analysis and transform it into a resilient, automated, and well-documented software tool.
+The foundational concept for this project came from DataCamp, providing a great starting point for the analysis. I saw an opportunity to significantly expand upon it by engineering a more robust and professional solution.
 
-This `README.md` documents both the findings of the analysis and the engineering decisions I made to elevate the project.
+My objective was to take a simple analysis and transform it into a resilient, automated, and well-documented software tool that reflects real-world data workflows. This `README.md` documents both the findings of the analysis and the engineering decisions I made to elevate the project.
 
 ### Data Source
-The datasets used in this analysis were provided by DataCamp and represent anonymized and aggregated Google Trends data for various workout-related keywords from 2018 to 2023.
+The datasets used in this analysis were provided by DataCamp and represent anonymized and aggregated Google Trends data for various workout-related keywords from 2018 to 2023, stored in the `data/raw` directory.
 
 ---
 
-## Project Enhancements: Beyond the Tutorial
+## Project Architecture & Key Features
 
-To make this project my own and to demonstrate professional software development practices, I implemented several key enhancements beyond the original scope:
+This project is structured as a two-stage data pipeline, separating data preparation from analysis. This is a best practice that ensures a clean, maintainable, and robust workflow.
 
-*   **Modular Application Architecture:** Refactored the original script into a modular application with separate functions for each analysis step and a central configuration file (`config.py`).
-*   **Data Quality Assurance:** Integrated a dedicated data quality check as the first step in the analysis pipeline, ensuring the integrity and reliability of the input data before any processing occurs.
-*   **Reproducible Environment:** Created a complete, reproducible environment using a `requirements.txt` file, ensuring any other developer can run the analysis seamlessly.
-*   **Interactive Command-Line Interface (CLI):** Transformed the script into a reusable tool by adding `argparse`, allowing a user to run specific parts of the analysis on demand.
-*   **Unique Analytical Insights:** Developed a new, unique analysis to visualize the "dominance shift" between "Home Workout" and "Gym Workout" searches, providing a deeper insight than the original analysis.
-*   **Professional Documentation:** Created this comprehensive `README.md` to document the project's motivation, findings, and technical implementation.
+### 1. Data Preparation Pipeline (`data_preparation.py`)
+A dedicated ETL (Extract, Transform, Load) script that serves as the foundation for all analysis.
+*   **Extract:** Connects to multiple raw CSV files located in the `data/raw` directory.
+*   **Transform:** Performs data cleaning, merges the different datasets, standardizes column names, and models the data into clean, analysis-ready tables.
+*   **Load:** Saves two new, clean datasets (`processed_timeseries_data.csv` and `processed_geo_data.csv`) into the `data/processed` directory, completely decoupling the analysis from the raw source files.
+
+### 2. Analysis & Visualization (`main.py`)
+A modular application that consumes only the clean, prepared data to generate insights.
+*   **Data Quality Assurance:** Integrates a dedicated data quality check as the first step, verifying the integrity of the processed data before any analysis begins.
+*   **Interactive Command-Line Interface (CLI):** Built with `argparse`, allowing a user to run specific parts of the analysis on demand for targeted reporting.
+*   **Automated Report Generation:** Automatically saves all generated plots to the `images/` directory for use in reports and this documentation.
 
 ---
 
@@ -48,7 +53,7 @@ The global search interest for the term "workout" saw a dramatic spike in early 
 ![Overall Trends Plot](images/1_overall_trends.png)
 
 ### 2. "Home Workout" Dominated During COVID-19
-During the pandemic, "Home Workout" searches massively outpaced "Gym Workout." Post-pandemic, gym-related searches have recovered, but "Home Workout" remains a strong competitor, indicating a lasting shift in fitness habits.
+During the pandemic, "Home Workout" searches massively outpaced "Gym Workout." Post-pandemic, gym-related searches have recovered, but "Home Workout" remains a strong competitor.
 
 ![Keyword Trends Plot](images/2_keyword_trends.png)
 
@@ -65,15 +70,15 @@ The analysis of geographical data shows that while some countries have high over
 ---
 
 ## Technologies Used
-- Python
-- Pandas
-- Matplotlib
+- Python (Pandas, Matplotlib)
 - Git & GitHub
 - Anaconda
 
 ---
 
 ## How to Run This Project
+
+This project requires a two-step process: first, run the data preparation pipeline to create the clean datasets, then run the main analysis script to generate insights and visualizations.
 
 1.  **Clone the Repository**
     ```bash
@@ -92,8 +97,14 @@ The analysis of geographical data shows that while some countries have high over
     pip install -r requirements.txt
     ```
 
-4.  **Run the Analysis**
-    The script is an interactive tool. You can run the full analysis or specific parts.
+4.  **Run the Data Preparation Pipeline (Crucial First Step)**
+    This script takes the raw data from `data/raw`, performs cleaning and merging, and saves the final, analysis-ready datasets into `data/processed`.
+    ```bash
+    python data_preparation.py
+    ```
+
+5.  **Run the Analysis**
+    After the preparation script has run successfully, you can now run the main analysis script on the clean data. The interactive command-line interface allows you to run the full analysis or specific parts.
 
     *   **To run the full analysis (generates all plots):**
         ```bash
@@ -103,4 +114,11 @@ The analysis of geographical data shows that while some countries have high over
     *   **To run only the geographical analysis:**
         ```bash
         python main.py --analysis geo
+        ```
+
+    *   **(Other analysis options)**
+        ```bash
+        python main.py --analysis overall
+        python main.py --analysis keywords
+        python main.py --analysis dominance
         ```
