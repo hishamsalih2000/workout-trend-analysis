@@ -66,9 +66,9 @@ def analyze_overall_trends():
     Loads and plots the overall 'workout' search trend.
     """
     logging.info("--- 1. Analyzing Overall Workout Trends ---")
-    df = load_data(config.OVERALL_TRENDS_FILE)
-    perform_data_quality_checks(df, 'workout.csv')
-    df['month'] = pd.to_datetime(df['month'], format='%Y-%m')
+    df = load_data(config.PROCESSED_TIMESERIES_FILE)
+    perform_data_quality_checks(df, 'processed_timeseries_data.csv')
+    df['month'] = pd.to_datetime(df['month'])
 
     plt.figure(figsize=(config.PLOT_WIDTH, config.PLOT_HEIGHT))
     plt.plot(df['month'], df['workout_worldwide'], color='navy')
@@ -91,9 +91,9 @@ def analyze_keyword_trends():
     Analyzes and plots trends for 'Home Workout' vs. 'Gym Workout'.
     """
     logging.info("--- 2. Analyzing Specific Keyword Trends (Home vs. Gym) ---")
-    df = load_data(config.KEYWORD_TRENDS_FILE)
-    perform_data_quality_checks(df, 'three_keywords.csv')
-    df['month'] = pd.to_datetime(df['month'], format='%Y-%m')
+    df = load_data(config.PROCESSED_TIMESERIES_FILE)
+    perform_data_quality_checks(df, 'processed_timeseries_data.csv')
+    df['month'] = pd.to_datetime(df['month'])
 
     plt.figure(figsize=(config.PLOT_WIDTH, config.PLOT_HEIGHT))
     plt.plot(df['month'], df['home_workout_worldwide'], label='Home Workout')
@@ -128,9 +128,9 @@ def analyze_home_vs_gym_dominance():
     Calculates and plots the dominance shift between 'Home' and 'Gym' workouts.
     """
     logging.info("--- 3. Unique Analysis: The Battle of Home vs. Gym ---")
-    df = load_data(config.KEYWORD_TRENDS_FILE)
-    perform_data_quality_checks(df, 'three_keywords.csv')
-    df['month'] = pd.to_datetime(df['month'], format='%Y-%m')
+    df = load_data(config.PROCESSED_TIMESERIES_FILE)
+    perform_data_quality_checks(df, 'processed_timeseries_data.csv')
+    df['month'] = pd.to_datetime(df['month'])
     
     df['home_vs_gym_diff'] = df['home_workout_worldwide'] - df['gym_workout_worldwide']
 
@@ -156,31 +156,27 @@ def analyze_home_vs_gym_dominance():
 
 def analyze_geo_trends():
     """
-    Analyzes geographical workout data to find top countries for general
-    and home-specific workout searches.
+    Analyzes the processed geographical workout data to find top countries for
+    general and home-specific workout searches.
     """
     logging.info("--- 4. Analyzing Geographical Trends ---")
     
-    # Load data for overall workout interest
-    df_geo = load_data(config.GEO_FILE)
-    perform_data_quality_checks(df_geo, 'workout_geo.csv')
+    # Load the single, clean, pre-merged geographical dataset
+    df_geo = load_data(config.PROCESSED_GEO_FILE)
+    perform_data_quality_checks(df_geo, 'processed_geo_data.csv')
     
     # Find the top country overall
     top_country = df_geo.loc[df_geo['workout_2018_2023'].idxmax()]['country']
     logging.info(f"Finding: The country with the highest overall workout interest is '{top_country}'.")
 
-    # Load data for keyword-specific geo interest
-    df_keywords_geo = load_data(config.KEYWORD_GEO_FILE)
-    perform_data_quality_checks(df_keywords_geo, 'three_keywords_geo.csv')
-
     # Compare Philippines vs Malaysia for home workout interest
-    filtered_df = df_keywords_geo[df_keywords_geo['Country'].isin(['Philippines', 'Malaysia'])]
-    home_workout_geo = filtered_df.loc[filtered_df['home_workout_2018_2023'].idxmax()]['Country']
+    filtered_df = df_geo[df_geo['country'].isin(['Philippines', 'Malaysia'])]
+    home_workout_geo = filtered_df.loc[filtered_df['home_workout_2018_2023'].idxmax()]['country']
     logging.info(f"Finding: Between the Philippines and Malaysia, '{home_workout_geo}' has the higher interest in home workouts.\n")
 
     # Create a bar chart for the comparison
     plt.figure(figsize=(8, 5))
-    plt.bar(filtered_df['Country'], filtered_df['home_workout_2018_2023'], color=['#FFC300', '#C70039'])
+    plt.bar(filtered_df['country'], filtered_df['home_workout_2018_2023'], color=['#FFC300', '#C70039'])
     plt.xlabel('Country')
     plt.ylabel('Relative Search Interest (2018-2023)')
     plt.title('Comparative "Home Workout" Interest')
