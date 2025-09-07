@@ -4,7 +4,7 @@
 
 Having gained practical experience in data analysis during my internship, I understand that the foundation of any valuable insight is clean, well-structured data. This project began as an opportunity to revisit fundamental data processing concepts, inspired by a DataCamp course, and to build upon them with a professional software engineering mindset.
 
-My goal was to construct a complete, professional, and end-to-end data analysis pipeline—from raw data to actionable insights—that showcases best practices I've learned both in theory and in practice.
+My goal was to construct a complete, professional, and end-to-end data analysis pipeline, from raw data to actionable insights, that showcases best practices I've learned both in theory and in practice.
 
 ## The Story: From Tutorial to Professional Tool
 
